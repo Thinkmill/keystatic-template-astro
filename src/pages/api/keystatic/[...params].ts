@@ -1,5 +1,7 @@
+// /pages/api/keystatic/[...params].ts
+
 import { makeHandler } from '@keystatic/astro/api'
-import config from '../../../../keystatic-config'
+import config from '../../../../keystatic.config'
 
 export const all = makeHandler({
   config,

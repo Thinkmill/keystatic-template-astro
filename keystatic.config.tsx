@@ -8,12 +8,12 @@ export default config({
     },
   },
   collections: {
-    activity: collection({
-      label: 'Blog Posts',
-      directory: 'content/posts/',
+    posts: collection({
+      label: 'Posts',
+      directory: 'src/content/posts/',
       getItemSlug: (data) => data.slug,
       schema: {
-        titlle: fields.text({
+        title: fields.text({
           label: 'Title',
           validation: { length: { min: 4 } },
         }),
@@ -23,6 +23,10 @@ export default config({
         }),
         publishedDate: fields.date({
           label: 'Published Date',
+        }),
+        summary: fields.text({
+          label: 'Summary',
+          validation: { length: { min: 4, max: 120 } },
         }),
         content: fields.document({
           label: 'Content',
