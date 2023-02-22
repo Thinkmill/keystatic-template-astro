@@ -1,0 +1,86 @@
+---
+import Layout from '../layouts/Layout.astro'
+import config from '../../keystatic.config'
+import { createReader } from '@keystatic/core/reader'
+import { DocumentRenderer } from '@keystatic/core/renderer'
+
+export async function getStaticPath() {
+  const reader = createReader('', config)
+  const postSlugs = await reader.collections.posts.list()
+  return {
+    paths: postSlugs.map((slug) => ({
+      params: { post: slug },
+    })),
+  }
+}
+
+async function getCurrentPostData() {
+  const staticPaths = await getStaticPath()
+  const slug = staticPaths.paths[0].params.post
+  if (typeof slug !== 'string') {
+    throw new Error('This is a problem')
+  }
+  const reader = createReader('', config)
+  const post = await reader.collections.posts.read(slug)
+  const content = await (post?.content() || [])
+  return {
+    props: {
+      ...post,
+      content,
+    },
+  }
+}
+
+const postData = await getCurrentPostData()
+---
+
+<Layout title={postData.props.title || 'Astro & Keystatic'}>
+  <main>
+    <DocumentRenderer document={postData.props.content} />
+  </main>
+</Layout>
+
+<style>
+  main {
+    margin: auto;
+    padding: 1.5rem;
+    max-width: 60ch;
+  }
+  h1 {
+    font-size: 3rem;
+    font-weight: 800;
+    margin: 0;
+  }
+  .text-gradient {
+    background-image: var(--accent-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 400%;
+    background-position: 0%;
+  }
+  .instructions {
+    line-height: 1.6;
+    margin: 1rem 0;
+    border: 1px solid rgba(var(--accent), 25%);
+    background-color: white;
+    padding: 1rem;
+    border-radius: 0.4rem;
+  }
+  .instructions code {
+    font-size: 0.875em;
+    font-weight: bold;
+    background: rgba(var(--accent), 12%);
+    color: rgb(var(--accent));
+    border-radius: 4px;
+    padding: 0.3em 0.45em;
+  }
+  .instructions strong {
+    color: rgb(var(--accent));
+  }
+  .link-card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(24ch, 1fr));
+    gap: 1rem;
+    padding: 0;
+  }
+</style>
