@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width">
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+		<meta name="generator" content="Astro v2.0.14">
+		<title>Setting up Keystatic in an Astro v2 project</title>
+	<link rel="stylesheet" href="/_astro/_slug_.12c5fa68.css" />
+<link rel="stylesheet" href="/_astro/_slug_.6d657a50.css" /></head>
+	<body>
+		<main class="astro-YVBAHNFJ">
+    <h1>Hello there Astronaut, welcome to Keystatic!</h1><p>Now that we have a <code>@keystatic/astro</code> package we can run Keystatic as a CMS for <strong>Astro</strong> projects.</p><blockquote><p><code>@keystatic/astro</code> requires the project to be running on Astro v2</p></blockquote><h2>Starting from scratch</h2><p>Once an Astro v2 project we need to add in the Keystatic parts by doing the following:</p><h3>Installing dependancies</h3><p><code>npm install @astrojs/node @astrojs/react @keystatic/core @keystatic/astro</code></p><h3>Adding a keystatic-config file at the root of the project</h3><pre>// keystatic-config.tsx
+
+import { collection, config, fields } from &#x27;@keystatic/core&#x27;
+export default config({
+  storage: {
+    kind: &#x27;github&#x27;, 
+    repo: {
+      owner: GITHUB_OWNER_NAME,
+      name: GITHUB_REPO_NAME
+    }
+  },
+  collections: {
+    posts: collection({
+      label: &#x27;Posts&#x27;,
+      directory: &#x27;src/content/posts/&#x27;,
+      getItemSlug: (data) =&gt; data.slug,
+      schema: {
+        titlle: fields.text({
+          label: &#x27;Title&#x27;,
+          validation: { length: { min: 4 } },
+        }),
+        slug: fields.text({
+          label: &#x27;Slug&#x27;,
+          validation: { length: { min: 4 } },
+        }),
+        publishedDate: fields.date({
+          label: &#x27;Published Date&#x27;,
+        }),
+        content: fields.document({
+          label: &#x27;Content&#x27;,
+          formatting: true,
+          dividers: true,
+          links: true,
+          layouts: [
+            [1, 1],
+            [1, 1, 1],
+            [2, 1],
+            [1, 2, 1],
+          ],
+        }),
+      },
+    }),
+  },
+})</pre><h3>Adding a keystatic-page file to the root of the project</h3><pre>// keystatic-page.tsx
+
+import { makePage } from &#x27;@keystatic/astro/ui&#x27;
+import config from &#x27;./keystatic-config&#x27;
+
+export const Keystatic = makePage(config)</pre><h3>Modifying the astro.config file</h3><pre>// astro.config.mjs
+
+import react from &#x27;@astrojs/react&#x27;
+import node from &#x27;@astrojs/node&#x27;
+
+export default defineConfig({
+	output: &#x27;server&#x27;,
+	adapter: node({
+		mode: &#x27;standalone&#x27;
+	}),
+integrations: [react()],
+})</pre><p>Now that we have the pages and config we need at the root level we are now going to create our pages for Keystatic</p><h3>Our Keystatic admin page</h3><p>This is the page we will go to when we hit the <code>your-url/keystatic</code> path</p><pre>// /pages/keystatic/[...params].astro
+
+---
+import { Keystatic } from &#x27;../../../keystatic-page&#x27;
+---
+
+&lt;Keystatic client:only=&quot;react&quot; /&gt;</pre><h3>Keystatic API page</h3><pre>// /pages/api/keystatic/[...params].ts
+
+import { makeHandler } from &#x27;@keystatic/astro/api&#x27;
+import config from &#x27;../../../../keystatic-config&#x27;
+
+export const all = makeHandler({
+  config,
+  secret: import.meta.env.KEYSTATIC_SECRET,
+  clientId: import.meta.env.KEYSTATIC_GITHUB_CLIENT_ID,
+  clientSecret: import.meta.env.KEYSTATIC_GITHUB_CLIENT_SECRET,
+})</pre><h3>Starting the server to create a GitHub App</h3><p>Now that we are setup we can run <code>npm run dev</code> and navigate to our local host as usual.</p><p>Going to the <code>/keystatic</code> path for the first run will</p><hr/><p></p>
+  </main>
+	</body></html>

@@ -6,21 +6,17 @@ import { DocumentRenderer } from '@keystatic/core/renderer'
 
 export const prerender = true
 
-export async function getStaticPath() {
+export async function getStaticPaths() {
   const reader = createReader('', config)
   const postSlugs = await reader.collections.posts.list()
-  return {
-    paths: postSlugs.map((slug) => ({
-      params: { post: slug },
+  return [
+    postSlugs.map((slug) => ({
+      params: { slug: slug },
     })),
-  }
+  ]
 }
 
-async function getCurrentPostData() {
-  const slug = Astro.params.slug
-  if (typeof slug !== 'string') {
-    throw new Error('This is a problem')
-  }
+export async function getPostPropsForSlug({ slug }: { slug: string }) {
   const reader = createReader('', config)
   const post = await reader.collections.posts.read(slug)
   const content = await (post?.content() || [])
@@ -32,12 +28,16 @@ async function getCurrentPostData() {
   }
 }
 
-const postData = await getCurrentPostData()
+const { slug } = Astro.params
+if (typeof slug !== 'string') {
+  throw new Error('Boom fail build')
+}
+const { props } = await getPostPropsForSlug({ slug })
 ---
 
-<Layout title={postData.props.title || 'Astro & Keystatic'}>
+<Layout title={props.title || 'Astro & Keystatic'}>
   <main>
-    <DocumentRenderer document={postData.props.content} />
+    <DocumentRenderer document={props.content} />
   </main>
 </Layout>
 
