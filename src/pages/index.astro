@@ -54,15 +54,17 @@ const posts = await getPostsData()
         body='Come say hi to our amazing Discord community. ❤️'
       />
     </ul>
-    {
-      posts.map((post) => (
-        <Card
-          title={post.title || ''}
-          body={post.summary || ''}
-          href={post.slug || '/'}
-        />
-      ))
-    }
+    <ul role='list' class='keystatic-list'>
+      {
+        posts.map((post) => (
+          <Card
+            title={post.title || ''}
+            body={post.summary || ''}
+            href={post.slug || '/'}
+          />
+        ))
+      }
+    </ul>
   </main>
 </Layout>
 
@@ -106,6 +108,12 @@ const posts = await getPostsData()
   .link-card-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(24ch, 1fr));
+    gap: 1rem;
+    padding: 0;
+  }
+  .keystatic-list {
+    display: grid;
+    grid-template-columns: minmax(24ch, 1fr);
     gap: 1rem;
     padding: 0;
   }

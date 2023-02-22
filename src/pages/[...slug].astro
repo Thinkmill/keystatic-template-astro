@@ -15,8 +15,7 @@ export async function getStaticPath() {
 }
 
 async function getCurrentPostData() {
-  const staticPaths = await getStaticPath()
-  const slug = staticPaths.paths[0].params.post
+  const slug = Astro.params.slug
   if (typeof slug !== 'string') {
     throw new Error('This is a problem')
   }
