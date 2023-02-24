@@ -4,7 +4,7 @@ export default config({
     kind: 'github',
     repo: {
       owner: 'thinkmill',
-      name: 'keystastro',
+      name: 'keystatic-template-astro',
     },
   },
   collections: {
