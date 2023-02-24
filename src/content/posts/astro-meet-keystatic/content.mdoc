@@ -14,7 +14,7 @@ Once an Astro v2 project we need to add in the Keystatic parts by doing the foll
 
 ### Adding a keystatic-config file at the root of the project
 
-```
+```typescript
 // keystatic-config.tsx
 
 import { collection, config, fields } from '@keystatic/core'
@@ -74,19 +74,19 @@ export const Keystatic = makePage(config)
 
 ### Modifying the astro.config file
 
-```
+```javascript
 // astro.config.mjs
 
+import { defineConfig } from 'astro/config';
 import react from '@astrojs/react'
-import node from '@astrojs/node'
+import vercel from '@astrojs/vercel/serverless';
 
+// https://astro.build/config
 export default defineConfig({
-	output: 'server',
-	adapter: node({
-		mode: 'standalone'
-	}),
-integrations: [react()],
-})
+  output: 'server',
+  adapter: vercel(),
+  integrations: [react()]
+});
 ```
 
 Now that we have the pages and config we need at the root level we are now going to create our pages for Keystatic
@@ -95,7 +95,7 @@ Now that we have the pages and config we need at the root level we are now going
 
 This is the page we will go to when we hit the `your-url/keystatic` path
 
-```
+```javascript
 // /pages/keystatic/[...params].astro
 
 ---
@@ -107,7 +107,7 @@ import { Keystatic } from '../../../keystatic-page'
 
 ### Keystatic API page
 
-```
+```typescript
 // /pages/api/keystatic/[...params].ts
 
 import { makeHandler } from '@keystatic/astro/api'
