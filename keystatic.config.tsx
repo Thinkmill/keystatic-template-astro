@@ -11,7 +11,7 @@ export default config({
     posts: collection({
       label: 'Posts',
       directory: 'src/content/posts/',
-      getItemSlug: (data) => data.slug,
+      slugField: 'slug',
       schema: {
         title: fields.text({
           label: 'Title',

@@ -14,7 +14,7 @@
 		"@astrojs/react": "^2.0.2",
 		"@astrojs/vercel": "^3.1.2",
 		"@keystatic/astro": "^0.0.4",
-		"@keystatic/core": "^0.0.42",
+		"@keystatic/core": "^0.0.47",
 		"astro": "^2.0.14"
 	}
 }
