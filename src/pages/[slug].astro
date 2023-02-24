@@ -31,6 +31,8 @@ if (typeof slug !== 'string') {
   throw new Error('Boom fail build')
 }
 const { props } = await getPostPropsForSlug({ slug })
+
+export const prerender = true
 ---
 
 <Layout title={props.title || 'Astro & Keystatic'}>
