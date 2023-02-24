@@ -125,6 +125,115 @@ export const all = makeHandler({
 
 Now that we are setup we can run `npm run dev` and navigate to our local host as usual.
 
-Going to the `/keystatic` path for the first run will
+Going to the `/keystatic` path for the first time it will generate the GitHub App on the account in the `keystatic.config/tsx` file.
+
+> When you go through the building of the GitHub app you get the success message followed by **Not Found** try restarting the Astro server and navigate to the `/keystatic` path name again.
+
+When you have the Keystatic admin running create a post, and we will move into getting that onto the page.
 
 ---
+
+## Querying Keystatic
+
+Keystatic uses Markdoc for all of it's content, which requires the use of the reader which comes with Keystatic. On `/pages/index.astro` we will use the following to get all of our posts to display as cards.
+
+```typescript
+async function getPostsData() {
+  const reader = createReader('', config)
+  const postSlugs = await reader.collections.posts.list()
+  const postData = await Promise.all(
+    postSlugs.map(async (slug) => {
+      const post = await reader.collections.posts.read(slug)
+      const content = (await post?.content()) || []
+      return {
+        ...post,
+        content,
+      }
+    })
+  )
+  return postData
+}
+```
+
+This gets us our posts array of all the items we have in our collection.
+
+### `[slug].astro`
+
+We are going to use dynamic routes and page rendering to create each post from our blog. To do this, we need a few pieces.
+
+First, we will use `getStaticPaths()` to generate a new page for each of our posts, and we will also get the slug from each page generated.
+
+```typescript
+export async function getStaticPaths() {
+  const reader = createReader('', config)
+  const postSlugs = await reader.collections.posts.list()
+    return [
+      postSlugs.map((slug) => ({
+	params: { slug: slug },
+      })),
+    ]
+}
+```
+
+We will use the slug and the reader from Keystatic to get the post of the page we're on.
+
+```typescript
+export async function getPostPropsForSlug({ slug }: { slug: string }) {
+  const reader = createReader('', config)
+  const post = await reader.collections.posts.read(slug)
+  const content = await (post?.content() || [])
+  return {
+    props: {
+      ...post,
+      content,
+    },
+  }
+}
+```
+
+We're then going to tie all of this together by getting the current page we're on, so we show the correct page.
+
+```typescript
+const { slug } = Astro.params
+if (typeof slug !== 'string') {
+  throw new Error('Boom fail build')
+}
+
+const { props } = await getPostPropsForSlug({ slug })
+```
+
+---
+
+## Launching to Vercel
+
+To launch our Astro + Keystatic project, we will be using the [_hybrid rendering_](https://docs.astro.build/en/guides/server-side-rendering/#hybrid-rendering) feature available in Astro v2. This is where our front-end pages in Astro will still be statically built but, the Keystatic pages will be Server Side Rendered. To do this, we need to know a few things.
+
+## Prerender
+
+For each file we want to render in the `/pages` directory we want to add the line:
+
+```typescript
+export const prerender = true
+```
+
+This will notify Astro that at build time we want to statically generate this page.
+
+The other thing we need is inside our `astro.config.mjs` file. Specifically the `const isVercelBuild` and the line about the adapter.
+
+```typescript
+import { defineConfig } from 'astro/config';
+import react from '@astrojs/react'
+import vercel from '@astrojs/vercel/serverless';
+import node from '@astrojs/node'
+
+const isVercelBuild = process.env.CI || process.env.VERCEL
+
+export default defineConfig({
+  output: 'server',
+  adapter: isVercelBuild ? vercel(): node({mode: 'standalone'}),
+  integrations: [react()]
+});
+
+```
+
+The **CI** and **VERCEL** environment variables are accessible when the build is running through Vercel letting the project know we need to use the Vercel adapter for our project. When we are running locally we will use the **node** adapter run in _standalone_ giving us the ability to build and preview using Astro locally.
