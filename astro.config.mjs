@@ -3,11 +3,11 @@ import react from '@astrojs/react'
 import vercel from '@astrojs/vercel/serverless';
 import node from '@astrojs/node'
 
-const isVercelBuild = import.meta.env.CI || import.meta.env.VERCEL
+// const isVercelBuild = import.meta.env.CI || import.meta.env.VERCEL
 
 // https://astro.build/config
 export default defineConfig({
   output: 'server',
-  adapter: isVercelBuild ? vercel(): node({mode: 'standalone'}),
+  adapter: vercel(),
   integrations: [react()]
 });
