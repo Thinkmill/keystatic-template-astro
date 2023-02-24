@@ -4,6 +4,8 @@ import config from '../../keystatic.config'
 import { createReader } from '@keystatic/core/reader'
 import { DocumentRenderer } from '@keystatic/core/renderer'
 
+export const prerender = true
+
 export async function getStaticPaths() {
   const reader = createReader('', config)
   const postSlugs = await reader.collections.posts.list()
@@ -31,8 +33,6 @@ if (typeof slug !== 'string') {
   throw new Error('Boom fail build')
 }
 const { props } = await getPostPropsForSlug({ slug })
-
-export const prerender = true
 ---
 
 <Layout title={props.title || 'Astro & Keystatic'}>
